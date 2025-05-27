@@ -1,7 +1,7 @@
 import ping from "../../assets/ping.svg";
 import profilePhoto from "../../assets/profile_photo.svg";
 import logo from "../../assets/logo.svg";
-import icon from "../../assets/icon.svg";
+import icon from "../../assets/iconcha.svg";
 
 const Header = ({ search, setSearch }) => {
   return (
