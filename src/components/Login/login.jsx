@@ -26,7 +26,7 @@ const Login = () => {
       const result = response.data;
 
       if (result && result.isOk) {
-        setAuthdata(data.key, "my-secret1");
+        setAuthData(data.key, "my-secret1");
         localStorage.setItem("user", JSON.stringify(result.data));
         navigate("/home");
         window.location.reload();

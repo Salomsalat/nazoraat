@@ -12,10 +12,12 @@ import {
 import { useState, useEffect } from "react";
 
 const EditModal = ({ open, onClose, book, onSave }) => {
-  const [status, setStatus] = useState(book?.status);
+  const [status, setStatus] = useState(book?.status ?? 1);
 
   useEffect(() => {
-    if (book) setStatus(book.status);
+    if (book?.status !== undefined) {
+      setStatus(book.status);
+    }
   }, [book]);
 
   const handleSubmit = () => {
@@ -29,7 +31,11 @@ const EditModal = ({ open, onClose, book, onSave }) => {
       <DialogContent>
         <FormControl fullWidth>
           <InputLabel>Status</InputLabel>
-          <Select value={status} onChange={(e) => setStatus(e.target.value)}>
+          <Select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            label="Status"
+          >
             <MenuItem value={1}>New</MenuItem>
             <MenuItem value={2}>Reading</MenuItem>
             <MenuItem value={3}>Finished</MenuItem>

@@ -6,9 +6,7 @@ import { API } from "../utilis/config";
 
 const Hero = ({ search }) => {
   const [books, setBooks] = useState([]);
-  const [error, setError] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const [isbn, setIsbn] = useState("");
   const [editBook, setEditBook] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
 
@@ -19,42 +17,22 @@ const Hero = ({ search }) => {
 
   const handleClose = () => {
     setModalOpen(false);
-    setIsbn("");
     setEditBook(null);
   };
-
-  const kun = (date) => new Date(date).getFullYear();
 
   const fetchBooks = () => {
     API.get("/books")
       .then((res) => {
-        if (res.data.data) {
-          setBooks(res.data.data);
-        } else {
-          setBooks([]);
-        }
+        setBooks(res.data.data || []);
       })
       .catch((err) => {
-        setError(err.message);
+        console.error("Failed to fetch books", err);
       });
   };
 
   useEffect(() => {
     fetchBooks();
   }, []);
-
-  const handleCreate = async () => {
-    await API.post("/books", { isbn });
-    fetchBooks();
-    handleClose();
-  };
-
-  const handleStatusEdit = async (updatedBook) => {
-    await API.put("/books", updatedBook);
-    fetchBooks();
-    setEditModalOpen(false);
-    setEditBook(null);
-  };
 
   const deleteBook = (id) => {
     API.get(`/books?id=${id}`)
@@ -63,14 +41,21 @@ const Hero = ({ search }) => {
           setBooks((e) => e.filter((book) => book._id !== id));
         }
       })
-      .catch((err) => {
-        setError(err.message);
-      });
+      .catch((err) => console.error("Delete error", err));
+  };
+
+  const handleStatusEdit = async (updatedBook) => {
+    await API.patch("/books", updatedBook);
+    fetchBooks();
+    setEditModalOpen(false);
+    setEditBook(null);
   };
 
   const filteredBooks = books.filter((book) =>
     book.title.toLowerCase().includes(search.toLowerCase())
   );
+
+  const kun = (date) => new Date(date).getFullYear();
 
   return (
     <div className="hero p-6">
@@ -119,16 +104,19 @@ const Hero = ({ search }) => {
                 </p>
                 <p className="text-gray-700 mt-1">Isbn: {book.isbn}</p>
                 <p className="mt-4 text-gray-700">{book.author}</p>
+                <p className="mt-4 text-gray-700">
+                  {book.author} / {kun(book.published)}
+                </p>
               </div>
               <div className="hidden group-hover:flex flex-col gap-2 ml-4">
                 <button
-                  className="cursor-pointer text-red-600"
+                  className="text-red-600"
                   onClick={() => deleteBook(book._id)}
                 >
-                  🗑️
+                  X
                 </button>
                 <button
-                  className="cursor-pointer text-blue-600"
+                  className="text-blue-600"
                   onClick={() => {
                     setEditBook(book);
                     setEditModalOpen(true);
@@ -139,7 +127,7 @@ const Hero = ({ search }) => {
               </div>
             </div>
             <p
-              className={`mt-4 font-semibold px-3 py-1 rounded w-20 text-center ${
+              className={`mt-4 font-semibold px-3 py-1 ml-80 rounded w-20 text-center ${
                 book.status === 1
                   ? "bg-green-500"
                   : book.status === 2
@@ -160,11 +148,8 @@ const Hero = ({ search }) => {
       <BookModal
         open={modalOpen}
         onClose={handleClose}
-        isbn={isbn}
-        setIsbn={setIsbn}
-        onCreate={handleCreate}
+        onBookAdded={fetchBooks}
       />
-
       <EditModal
         open={editModalOpen}
         onClose={() => setEditModalOpen(false)}
