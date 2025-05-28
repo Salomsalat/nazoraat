@@ -39,7 +39,7 @@ const BookModal = ({ open, onClose, isbn, setIsbn, onCreate }) => {
         </div>
         <Box display="flex" justifyContent="flex-end" gap={1}>
           <Button onClick={onClose}>Close</Button>
-          <Button type="submit" variant="contained" >
+          <Button type="submit" variant="contained">
             Submit
           </Button>
         </Box>

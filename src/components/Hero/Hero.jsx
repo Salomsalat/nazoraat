@@ -9,6 +9,7 @@ const Hero = ({ search }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editBook, setEditBook] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [isbn, setIsbn] = useState("");
 
   const handleOpen = () => {
     setModalOpen(true);
@@ -20,13 +21,24 @@ const Hero = ({ search }) => {
     setEditBook(null);
   };
 
+  const handleCreateBook = () => {
+    API.post(`/books?id=${isbn}`)
+      .then((res) => {
+        if (res.data.isOk) {
+          API.get("/books").then((res) => {
+            setBooks(res.data.data);
+            setIsbn("");
+            setModalOpen(false);
+            window.location.reload();
+          });
+        }
+      });
+  };
+
   const fetchBooks = () => {
     API.get("/books")
       .then((res) => {
-        setBooks(res.data.data || []);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch books", err);
+        setBooks(res.data.data);
       });
   };
 
@@ -35,16 +47,14 @@ const Hero = ({ search }) => {
   }, []);
 
   const deleteBook = (id) => {
-    API.get(`/books?id=${id}`)
-      .then((res) => {
-        if (res.data.isOk) {
-          setBooks((e) => e.filter((book) => book._id !== id));
-        }
-      })
-      .catch((err) => console.error("Delete error", err));
+    API.get(`/books?id=${id}`).then((res) => {
+      if (res.data.isOk) {
+        setBooks((e) => e.filter((book) => book._id !== id));
+      }
+    });
   };
 
-  const handleStatusEdit = async (updatedBook) => {
+  const handleEdit = async (updatedBook) => {
     await API.patch("/books", updatedBook);
     fetchBooks();
     setEditModalOpen(false);
@@ -69,7 +79,6 @@ const Hero = ({ search }) => {
           </h1>
           <span className="text-xl">Your books today</span>
         </div>
-
         <Button
           onClick={handleOpen}
           sx={{
@@ -148,13 +157,15 @@ const Hero = ({ search }) => {
       <BookModal
         open={modalOpen}
         onClose={handleClose}
-        onBookAdded={fetchBooks}
+        isbn={isbn}
+        setIsbn={setIsbn}
+        onCreate={handleCreateBook}
       />
       <EditModal
         open={editModalOpen}
         onClose={() => setEditModalOpen(false)}
         book={editBook}
-        onSave={handleStatusEdit}
+        onSave={handleEdit}
       />
     </div>
   );

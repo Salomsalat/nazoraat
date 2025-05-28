@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./components/Home/Home";
 import Signup from "./components/Signup/signup";
 import Login from "./components/Login/login";
+import ErrorPage from "./components/ErrorPage/ErrorPage";
 import "./App.css";
 
 function App() {
@@ -23,6 +24,10 @@ function App() {
     {
       path: "/",
       element: <Login />,
+    },
+    {
+      path: "*",
+      element: <ErrorPage />,
     },
   ]);
 
